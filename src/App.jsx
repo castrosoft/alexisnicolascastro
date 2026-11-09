@@ -1,5 +1,15 @@
-import { Fragment, useEffect, useState } from "react";
-import { clubs, honors, translations } from "./translations.js";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { clubs, honors, photos, translations } from "./translations.js";
+
+const photoGroups = Array.from(
+  photos.reduce((groups, photo, index) => {
+    const group = groups.get(photo.club) ?? [];
+    group.push({ photo, index });
+    groups.set(photo.club, group);
+    return groups;
+  }, new Map()),
+  ([club, items]) => ({ club, photos: items })
+);
 
 function getInitialTheme() {
   try {
@@ -22,10 +32,38 @@ function ThemeIcon({ theme }) {
   );
 }
 
+function ClubCrest({ club }) {
+  const [hasError, setHasError] = useState(false);
+
+  if (!club.crest || hasError) {
+    return <span className="club-crest crest-fallback" aria-hidden="true">{club.initials}</span>;
+  }
+
+  return (
+    <span className="club-crest" aria-hidden="true">
+      <img
+        src={`/escudos/${club.crest}`}
+        alt=""
+        onError={() => setHasError(true)}
+      />
+    </span>
+  );
+}
+
 function App() {
   const [language, setLanguage] = useState("es");
   const [theme, setTheme] = useState(getInitialTheme);
+  const [activeClubName, setActiveClubName] = useState("Atlético de Rafaela");
+  const [activePhoto, setActivePhoto] = useState(null);
+  const photoDialogRef = useRef(null);
   const t = translations[language];
+  const isPhotoDialogOpen = activePhoto !== null;
+  const activeClub = clubs.find((club) => club.name === activeClubName) ?? clubs[0];
+  const activeClubPhoto = photos.find((photo) => photo.club === activeClub.name);
+  const activePhotoGroup = activePhoto
+    ? photoGroups.find((group) => group.club === activePhoto.club)
+    : null;
+  const activePhotoItem = activePhotoGroup?.photos[activePhoto.index].photo;
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -47,16 +85,69 @@ function App() {
     }
   }, [theme]);
 
+  useEffect(() => {
+    if (!("IntersectionObserver" in window)) return undefined;
+
+    document.documentElement.classList.add("has-motion");
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll("[data-reveal]").forEach((element) => observer.observe(element));
+
+    return () => {
+      observer.disconnect();
+      document.documentElement.classList.remove("has-motion");
+    };
+  }, []);
+
+  useEffect(() => {
+    const dialog = photoDialogRef.current;
+    if (!dialog) return;
+
+    if (isPhotoDialogOpen && !dialog.open) dialog.showModal();
+    if (!isPhotoDialogOpen && dialog.open) dialog.close();
+  }, [isPhotoDialogOpen]);
+
+  useEffect(() => {
+    if (!isPhotoDialogOpen) return undefined;
+
+    function handlePhotoNavigation(event) {
+      if (event.key === "ArrowRight") {
+        setActivePhoto((current) => ({
+          ...current,
+          index: (current.index + 1) % activePhotoGroup.photos.length
+        }));
+      } else if (event.key === "ArrowLeft") {
+        setActivePhoto((current) => ({
+          ...current,
+          index: (current.index - 1 + activePhotoGroup.photos.length) % activePhotoGroup.photos.length
+        }));
+      } else if (event.key === "Escape") {
+        setActivePhoto(null);
+      }
+    }
+
+    window.addEventListener("keydown", handlePhotoNavigation);
+    return () => window.removeEventListener("keydown", handlePhotoNavigation);
+  }, [activePhotoGroup, isPhotoDialogOpen]);
+
   return (
     <>
       <header className="site-header">
         <a className="wordmark" href="#inicio" aria-label="Alexis Castro, inicio">
-          <span className="wordmark-mark">AC</span>
+          <span className="wordmark-mark wordmark-avatar"><img src="/images/profile/profile.jpg" alt="" /></span>
           <span className="wordmark-name">ALEXIS CASTRO<span>FÚTBOL</span></span>
         </a>
         <nav className="main-nav" aria-label={language === "en" ? "Main navigation" : "Navegación principal"}>
           <a href="#trayectoria">{t.navCareer}</a>
           <a href="#logros">{t.navHonors}</a>
+          <a href="#fotos">{t.navPhotos}</a>
           <a href="#cuerpo-tecnico">{t.navStaff}</a>
           <a href="#contacto">{t.navContact}</a>
         </nav>
@@ -105,14 +196,10 @@ function App() {
               <span>{t.heroLocation}</span>
             </div>
           </div>
-          <div className="hero-visual" role="img" aria-label={language === "en" ? "Alexis Castro visual identity" : "Identidad visual de Alexis Castro"}>
+          <div className="hero-visual" role="img" aria-label={t.heroImageAlt}>
+            <img className="hero-photo" src="/images/portada/portada-removebg-preview.png" alt="" fetchPriority="high" />
             <div className="hero-orbit orbit-one" />
             <div className="hero-orbit orbit-two" />
-            <div className="hero-monogram">AC</div>
-            <div className="hero-number">84</div>
-            <div className="hero-caption"><span>{t.heroPosition}</span><span>·</span><span>{t.heroCaption}</span></div>
-            <span className="visual-corner corner-top" />
-            <span className="visual-corner corner-bottom" />
           </div>
           <div className="hero-scroll" aria-hidden="true"><span />SCROLL</div>
         </section>
@@ -132,21 +219,91 @@ function App() {
             </div>
             <p className="section-description">{t.careerDescription}</p>
           </div>
-          <div className="career-layout">
-            <div className="career-label"><span className="label-number">01</span><span>{t.careerLabel}<br />{t.careerLabelSecond}</span></div>
-            <div className="club-list">
-              {clubs.map((club) => (
-                <article className={`club-row ${club.highlighted ? "club-highlight" : ""}`} key={club.name}>
-                  <span className="club-years">
-                    {Array.isArray(club.years)
-                      ? club.years.map((year) => <Fragment key={year}>{year}<br /></Fragment>)
-                      : club.years}
-                  </span>
-                  <h3>{club.name}</h3>
-                  <span className="club-country">{t[club.country]}</span>
-                  <span className="club-arrow" aria-hidden="true">↗</span>
-                </article>
-              ))}
+          <div className="career-showcase" data-reveal>
+            <div className="career-feature" key={activeClub.name}>
+              {activeClubPhoto ? (
+                <img className="career-feature-image" src={activeClubPhoto.src} alt={activeClubPhoto.alt[language]} />
+              ) : (
+                <div className="career-feature-empty" />
+              )}
+              <span className="career-feature-overlay" />
+              <div className="career-feature-content">
+                <span className="career-feature-kicker">{t.careerSelected} · {Array.isArray(activeClub.years) ? activeClub.years.join(" / ") : activeClub.years}</span>
+                <div className="career-feature-main">
+                  <ClubCrest club={activeClub} />
+                  <h3>{activeClub.name}</h3>
+                </div>
+                <p>{t[activeClub.country]}<span aria-hidden="true"> · </span>{t.careerLabel} {t.careerLabelSecond}</p>
+              </div>
+              <span className="career-feature-index">{String(clubs.indexOf(activeClub) + 1).padStart(2, "0")}<span> / {String(clubs.length).padStart(2, "0")}</span></span>
+            </div>
+            <div className="career-side">
+              <p className="career-prompt">{t.careerSelectPrompt}</p>
+              <div className="club-list" role="group" aria-label={t.careerLabel}>
+                {clubs.map((club) => (
+                  <button
+                    className={`club-row ${club.highlighted ? "club-highlight" : ""} ${activeClub.name === club.name ? "is-selected" : ""}`}
+                    key={club.name}
+                    type="button"
+                    aria-pressed={activeClub.name === club.name}
+                    onClick={() => setActiveClubName(club.name)}
+                  >
+                    <ClubCrest club={club} />
+                    <span className="club-copy">
+                      <span className="club-years">
+                        {Array.isArray(club.years)
+                          ? club.years.map((year) => <Fragment key={year}>{year}<br /></Fragment>)
+                          : club.years}
+                      </span>
+                      <span className="club-name">{club.name}</span>
+                      <span className="club-country">{t[club.country]}</span>
+                    </span>
+                    <span className="club-arrow" aria-hidden="true">↗</span>
+                  </button>
+                ))}
+              </div>
+              <div className="career-metrics" aria-label={t.careerLabel}>
+                <div><strong>{clubs.length}</strong><span>{t.careerClubCount}</span></div>
+                <div><strong>{honors.length}</strong><span>{t.careerPromotions}</span></div>
+                <div><strong>15</strong><span>{t.careerSeasons}</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="photos section-space" id="fotos">
+          <div className="section-wrap">
+            <div className="section-heading photos-heading" data-reveal>
+              <div>
+                <p className="eyebrow"><span className="eyebrow-line" />{t.careerPhotos}</p>
+                <h2>{t.photosTitle}<br /><span>{t.photosTitleAccent}</span></h2>
+              </div>
+              <p className="section-description">{t.photosDescription}</p>
+            </div>
+            <div className="photo-grid">
+              {photoGroups.map((group, index) => {
+                const cover = group.photos[0].photo;
+                const countLabel = group.photos.length === 1 ? t.photoCountOne : t.photoCount;
+
+                return (
+                  <button
+                    className={`photo-card photo-card-${index + 1}`}
+                    key={group.club}
+                    type="button"
+                    aria-label={`${t.photoOpen}: ${group.club} (${group.photos.length} ${countLabel.toLowerCase()})`}
+                    onClick={() => setActivePhoto({ club: group.club, index: 0 })}
+                    data-reveal
+                  >
+                    <img src={cover.src} alt={cover.alt[language]} loading="lazy" />
+                    <span className="photo-shade" />
+                    <span className="photo-caption">
+                      <span>{group.club}</span>
+                      <strong>{group.photos.length} {countLabel}</strong>
+                    </span>
+                    <span className="photo-expand" aria-hidden="true">↗</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -176,6 +333,7 @@ function App() {
 
         <section className="staff section-wrap section-space" id="cuerpo-tecnico">
           <div className="staff-visual">
+            <img className="staff-portrait" src="/images/profile/profile.jpg" alt={t.profilePhotoAlt} />
             <div className="staff-badge"><span>{t.staffBadgeTop}</span><strong>+</strong><span>{t.staffBadgeBottom}</span></div>
             <span className="staff-visual-label">ATLÉTICO DE RAFAELA · 2025—</span>
           </div>
@@ -210,11 +368,58 @@ function App() {
           </a>
         </div>
         <div className="footer-bottom">
-          <a className="wordmark footer-wordmark" href="#inicio"><span className="wordmark-mark">AC</span><span className="wordmark-name">ALEXIS CASTRO<span>FÚTBOL</span></span></a>
+          <a className="wordmark footer-wordmark" href="#inicio"><span className="wordmark-mark wordmark-avatar"><img src="/images/profile/profile.jpg" alt="" /></span><span className="wordmark-name">ALEXIS CASTRO<span>FÚTBOL</span></span></a>
           <p>{t.footerNote}</p>
           <a href="#inicio" className="back-top"><span>{t.backTop}</span> ↑</a>
         </div>
       </footer>
+      <dialog
+        className="photo-dialog"
+        ref={photoDialogRef}
+        aria-label={language === "en" ? "Photo gallery" : "Galería de fotos"}
+        onCancel={(event) => {
+          event.preventDefault();
+          setActivePhoto(null);
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setActivePhoto(null);
+        }}
+      >
+        {activePhoto && activePhotoGroup && activePhotoItem && (
+          <div className="lightbox-content">
+            <div className="lightbox-toolbar">
+              <span>{activePhoto.club} · {String(activePhoto.index + 1).padStart(2, "0")} / {String(activePhotoGroup.photos.length).padStart(2, "0")}</span>
+              <button type="button" className="lightbox-close" aria-label={t.photoClose} onClick={() => setActivePhoto(null)}>×</button>
+            </div>
+            <div className="lightbox-image-wrap">
+              <button
+                type="button"
+                className="lightbox-arrow lightbox-previous"
+                aria-label={t.photoPrevious}
+                onClick={() => setActivePhoto((current) => ({
+                  ...current,
+                  index: (current.index - 1 + activePhotoGroup.photos.length) % activePhotoGroup.photos.length
+                }))}
+              >
+                ←
+              </button>
+              <img src={activePhotoItem.src} alt={activePhotoItem.alt[language]} />
+              <button
+                type="button"
+                className="lightbox-arrow lightbox-next"
+                aria-label={t.photoNext}
+                onClick={() => setActivePhoto((current) => ({
+                  ...current,
+                  index: (current.index + 1) % activePhotoGroup.photos.length
+                }))}
+              >
+                →
+              </button>
+            </div>
+            <p className="lightbox-caption">{activePhotoItem.caption[language]}</p>
+          </div>
+        )}
+      </dialog>
     </>
   );
 }
