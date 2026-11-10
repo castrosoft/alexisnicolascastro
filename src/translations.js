@@ -2,7 +2,6 @@ export const translations = {
   es: {
     navCareer: "Trayectoria",
     navHonors: "Logros",
-    navPhotos: "Fotos",
     navStaff: "Cuerpo técnico",
     navContact: "Contacto",
     themeLabel: "Cambiar tema de color",
@@ -27,16 +26,8 @@ export const translations = {
     careerPromotions: "ASCENSOS",
     careerSeasons: "AÑOS DE CARRERA",
     careerSeasonRange: "2004 — 2019",
-    careerPhotos: "POSTALES DEL CAMINO",
-    photosTitle: "El fútbol se cuenta",
-    photosTitleAccent: "en imágenes.",
-    photosDescription: "Recuerdos de distintas etapas de su carrera dentro de la cancha.",
-    photoOpen: "Ampliar foto",
-    photoCountOne: "FOTO",
-    photoCount: "FOTOS",
-    photoClose: "Cerrar foto",
-    photoPrevious: "Foto anterior",
-    photoNext: "Foto siguiente",
+    careerPhotos: "FOTOS DE ESTA ETAPA",
+    careerViewPhoto: "Ver foto",
     profilePhotoAlt: "Retrato de Alexis Nicolás Castro",
     careerLabel: "TRAYECTORIA",
     careerLabelSecond: "COMO JUGADOR",
@@ -48,8 +39,6 @@ export const translations = {
     honorsDescription: "Tres hitos colectivos que forman parte de su recorrido profesional como jugador.",
     promotion: "Ascenso a",
     firstDivision: "Primera División",
-    staffBadgeTop: "EL JUEGO",
-    staffBadgeBottom: "DESDE OTRO LUGAR",
     staffEyebrow: "NUEVA ETAPA",
     staffTitle: "La misma pasión.",
     staffTitleAccent: "Una nueva mirada.",
@@ -71,7 +60,6 @@ export const translations = {
   en: {
     navCareer: "Career",
     navHonors: "Highlights",
-    navPhotos: "Photos",
     navStaff: "Coaching staff",
     navContact: "Contact",
     themeLabel: "Change color theme",
@@ -96,16 +84,8 @@ export const translations = {
     careerPromotions: "PROMOTIONS",
     careerSeasons: "YEARS PLAYING",
     careerSeasonRange: "2004 — 2019",
-    careerPhotos: "CAREER SNAPSHOTS",
-    photosTitle: "Football told",
-    photosTitleAccent: "through pictures.",
-    photosDescription: "Memories from different chapters of his playing career.",
-    photoOpen: "Enlarge photo",
-    photoCountOne: "PHOTO",
-    photoCount: "PHOTOS",
-    photoClose: "Close photo",
-    photoPrevious: "Previous photo",
-    photoNext: "Next photo",
+    careerPhotos: "PHOTOS FROM THIS CHAPTER",
+    careerViewPhoto: "View photo",
     profilePhotoAlt: "Portrait of Alexis Nicolás Castro",
     careerLabel: "PLAYING",
     careerLabelSecond: "CAREER",
@@ -117,8 +97,6 @@ export const translations = {
     honorsDescription: "Three team achievements from his professional career as a player.",
     promotion: "Promotion to",
     firstDivision: "the First Division",
-    staffBadgeTop: "THE GAME",
-    staffBadgeBottom: "FROM A NEW ANGLE",
     staffEyebrow: "A NEW CHAPTER",
     staffTitle: "Same passion.",
     staffTitleAccent: "A new perspective.",
@@ -166,6 +144,12 @@ export const photos = [
     alt: { es: "Alexis Castro jugando para Al Ahli", en: "Alexis Castro playing for Al Ahli" }
   },
   {
+    src: "/images/al-ahli/3804.jpg",
+    club: "Al Ahli",
+    caption: { es: "Una jugada con Al Ahli", en: "A play with Al Ahli" },
+    alt: { es: "Alexis Castro jugando para Al Ahli", en: "Alexis Castro playing for Al Ahli" }
+  },
+  {
     src: "/images/aldosivi/alexis_castro_ok.jpg",
     club: "Aldosivi",
     caption: { es: "Un recuerdo en Mar del Plata", en: "A memory in Mar del Plata" },
@@ -176,6 +160,18 @@ export const photos = [
     club: "Atlético Tucumán",
     caption: { es: "Con la camiseta de Atlético Tucumán", en: "Wearing the Atlético Tucumán shirt" },
     alt: { es: "Alexis Castro durante su etapa en Atlético Tucumán", en: "Alexis Castro during his time at Atlético Tucumán" }
+  },
+  {
+    src: "/images/atletico-tucuman/nicolai.jpg",
+    club: "Atlético Tucumán",
+    caption: { es: "En acción con Atlético Tucumán", en: "In action with Atlético Tucumán" },
+    alt: { es: "Alexis Castro jugando para Atlético Tucumán", en: "Alexis Castro playing for Atlético Tucumán" }
+  },
+  {
+    src: "/images/atletico-tucuman/vs.%20gloria.jpg",
+    club: "Atlético Tucumán",
+    caption: { es: "Atlético Tucumán frente a Instituto", en: "Atlético Tucumán against Instituto" },
+    alt: { es: "Alexis Castro jugando para Atlético Tucumán frente a Instituto", en: "Alexis Castro playing for Atlético Tucumán against Instituto" }
   },
   {
     src: "/images/atleticorafaela/vs%20sabalero.jpg",
@@ -205,6 +201,12 @@ export const photos = [
     src: "/images/godoycruz/tf13-gc-usf-castro.jpg",
     club: "Godoy Cruz",
     caption: { es: "Con la camiseta de Godoy Cruz", en: "Wearing the Godoy Cruz shirt" },
+    alt: { es: "Alexis Castro jugando para Godoy Cruz", en: "Alexis Castro playing for Godoy Cruz" }
+  },
+  {
+    src: "/images/godoycruz/castro.webp",
+    club: "Godoy Cruz",
+    caption: { es: "En acción con Godoy Cruz", en: "In action with Godoy Cruz" },
     alt: { es: "Alexis Castro jugando para Godoy Cruz", en: "Alexis Castro playing for Godoy Cruz" }
   },
   {

@@ -21,7 +21,7 @@ Vite genera el sitio listo para publicar en `dist/`.
 
 ## Imágenes
 
-Las fotos se sirven desde `public/images/` y se registran con texto alternativo y epígrafe en `src/translations.js`. La galería crea una tarjeta por equipo y agrupa todas las fotos que comparten el mismo nombre de `club`; el visor permite recorrerlas.
+Las fotos se sirven desde `public/images/<carpeta-del-equipo>/` y se registran en el arreglo `photos` de `src/translations.js`. Para agregar fotos a la trayectoria, copiá el archivo en la carpeta del equipo y agregá una entrada con su ruta y el nombre exacto del club. Al seleccionar ese club, sus fotos aparecen como miniaturas debajo de la imagen principal.
 
 La portada usa el recorte transparente `public/images/portada/portada-removebg-preview.png` y el retrato de perfil, `public/images/profile/profile.jpg`.
 

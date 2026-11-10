@@ -1,15 +1,5 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { clubs, honors, photos, translations } from "./translations.js";
-
-const photoGroups = Array.from(
-  photos.reduce((groups, photo, index) => {
-    const group = groups.get(photo.club) ?? [];
-    group.push({ photo, index });
-    groups.set(photo.club, group);
-    return groups;
-  }, new Map()),
-  ([club, items]) => ({ club, photos: items })
-);
 
 function getInitialTheme() {
   try {
@@ -53,17 +43,12 @@ function ClubCrest({ club }) {
 function App() {
   const [language, setLanguage] = useState("es");
   const [theme, setTheme] = useState(getInitialTheme);
-  const [activeClubName, setActiveClubName] = useState("Atlético de Rafaela");
-  const [activePhoto, setActivePhoto] = useState(null);
-  const photoDialogRef = useRef(null);
+  const [activeClubName, setActiveClubName] = useState("Instituto");
+  const [activeClubPhotoIndex, setActiveClubPhotoIndex] = useState(0);
   const t = translations[language];
-  const isPhotoDialogOpen = activePhoto !== null;
   const activeClub = clubs.find((club) => club.name === activeClubName) ?? clubs[0];
-  const activeClubPhoto = photos.find((photo) => photo.club === activeClub.name);
-  const activePhotoGroup = activePhoto
-    ? photoGroups.find((group) => group.club === activePhoto.club)
-    : null;
-  const activePhotoItem = activePhotoGroup?.photos[activePhoto.index].photo;
+  const activeClubPhotos = photos.filter((photo) => photo.club === activeClub.name);
+  const activeClubPhoto = activeClubPhotos[activeClubPhotoIndex] ?? activeClubPhotos[0];
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -106,37 +91,6 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    const dialog = photoDialogRef.current;
-    if (!dialog) return;
-
-    if (isPhotoDialogOpen && !dialog.open) dialog.showModal();
-    if (!isPhotoDialogOpen && dialog.open) dialog.close();
-  }, [isPhotoDialogOpen]);
-
-  useEffect(() => {
-    if (!isPhotoDialogOpen) return undefined;
-
-    function handlePhotoNavigation(event) {
-      if (event.key === "ArrowRight") {
-        setActivePhoto((current) => ({
-          ...current,
-          index: (current.index + 1) % activePhotoGroup.photos.length
-        }));
-      } else if (event.key === "ArrowLeft") {
-        setActivePhoto((current) => ({
-          ...current,
-          index: (current.index - 1 + activePhotoGroup.photos.length) % activePhotoGroup.photos.length
-        }));
-      } else if (event.key === "Escape") {
-        setActivePhoto(null);
-      }
-    }
-
-    window.addEventListener("keydown", handlePhotoNavigation);
-    return () => window.removeEventListener("keydown", handlePhotoNavigation);
-  }, [activePhotoGroup, isPhotoDialogOpen]);
-
   return (
     <>
       <header className="site-header">
@@ -147,7 +101,6 @@ function App() {
         <nav className="main-nav" aria-label={language === "en" ? "Main navigation" : "Navegación principal"}>
           <a href="#trayectoria">{t.navCareer}</a>
           <a href="#logros">{t.navHonors}</a>
-          <a href="#fotos">{t.navPhotos}</a>
           <a href="#cuerpo-tecnico">{t.navStaff}</a>
           <a href="#contacto">{t.navContact}</a>
         </nav>
@@ -198,8 +151,6 @@ function App() {
           </div>
           <div className="hero-visual" role="img" aria-label={t.heroImageAlt}>
             <img className="hero-photo" src="/images/portada/portada-removebg-preview.png" alt="" fetchPriority="high" />
-            <div className="hero-orbit orbit-one" />
-            <div className="hero-orbit orbit-two" />
           </div>
           <div className="hero-scroll" aria-hidden="true"><span />SCROLL</div>
         </section>
@@ -220,22 +171,40 @@ function App() {
             <p className="section-description">{t.careerDescription}</p>
           </div>
           <div className="career-showcase" data-reveal>
-            <div className="career-feature" key={activeClub.name}>
-              {activeClubPhoto ? (
-                <img className="career-feature-image" src={activeClubPhoto.src} alt={activeClubPhoto.alt[language]} />
-              ) : (
-                <div className="career-feature-empty" />
-              )}
-              <span className="career-feature-overlay" />
-              <div className="career-feature-content">
-                <span className="career-feature-kicker">{t.careerSelected} · {Array.isArray(activeClub.years) ? activeClub.years.join(" / ") : activeClub.years}</span>
-                <div className="career-feature-main">
-                  <ClubCrest club={activeClub} />
-                  <h3>{activeClub.name}</h3>
+            <div className="career-feature-column">
+              <div className="career-feature" key={activeClub.name}>
+                {activeClubPhoto ? (
+                  <img className="career-feature-image" src={activeClubPhoto.src} alt={activeClubPhoto.alt[language]} />
+                ) : (
+                  <div className="career-feature-empty" />
+                )}
+                <span className="career-feature-overlay" />
+                <div className="career-feature-content">
+                  <span className="career-feature-kicker">{t.careerSelected} · {Array.isArray(activeClub.years) ? activeClub.years.join(" / ") : activeClub.years}</span>
+                  <div className="career-feature-main">
+                    <ClubCrest club={activeClub} />
+                    <h3>{activeClub.name}</h3>
+                  </div>
+                  <p>{t[activeClub.country]}<span aria-hidden="true"> · </span>{t.careerLabel} {t.careerLabelSecond}</p>
                 </div>
-                <p>{t[activeClub.country]}<span aria-hidden="true"> · </span>{t.careerLabel} {t.careerLabelSecond}</p>
+                <span className="career-feature-index">{String(clubs.indexOf(activeClub) + 1).padStart(2, "0")}<span> / {String(clubs.length).padStart(2, "0")}</span></span>
               </div>
-              <span className="career-feature-index">{String(clubs.indexOf(activeClub) + 1).padStart(2, "0")}<span> / {String(clubs.length).padStart(2, "0")}</span></span>
+              {activeClubPhotos.length > 1 && (
+                <div className="career-photo-list" role="group" aria-label={`${activeClub.name} — ${t.careerPhotos}`}>
+                  {activeClubPhotos.map((photo, index) => (
+                    <button
+                      className={`career-photo-thumb ${index === activeClubPhotoIndex ? "is-selected" : ""}`}
+                      key={photo.src}
+                      type="button"
+                      aria-label={`${t.careerViewPhoto} ${index + 1}: ${photo.alt[language]}`}
+                      aria-pressed={index === activeClubPhotoIndex}
+                      onClick={() => setActiveClubPhotoIndex(index)}
+                    >
+                      <img src={photo.src} alt="" loading="lazy" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="career-side">
               <p className="career-prompt">{t.careerSelectPrompt}</p>
@@ -246,7 +215,10 @@ function App() {
                     key={club.name}
                     type="button"
                     aria-pressed={activeClub.name === club.name}
-                    onClick={() => setActiveClubName(club.name)}
+                    onClick={() => {
+                      setActiveClubName(club.name);
+                      setActiveClubPhotoIndex(0);
+                    }}
                   >
                     <ClubCrest club={club} />
                     <span className="club-copy">
@@ -271,43 +243,6 @@ function App() {
           </div>
         </section>
 
-        <section className="photos section-space" id="fotos">
-          <div className="section-wrap">
-            <div className="section-heading photos-heading" data-reveal>
-              <div>
-                <p className="eyebrow"><span className="eyebrow-line" />{t.careerPhotos}</p>
-                <h2>{t.photosTitle}<br /><span>{t.photosTitleAccent}</span></h2>
-              </div>
-              <p className="section-description">{t.photosDescription}</p>
-            </div>
-            <div className="photo-grid">
-              {photoGroups.map((group, index) => {
-                const cover = group.photos[0].photo;
-                const countLabel = group.photos.length === 1 ? t.photoCountOne : t.photoCount;
-
-                return (
-                  <button
-                    className={`photo-card photo-card-${index + 1}`}
-                    key={group.club}
-                    type="button"
-                    aria-label={`${t.photoOpen}: ${group.club} (${group.photos.length} ${countLabel.toLowerCase()})`}
-                    onClick={() => setActivePhoto({ club: group.club, index: 0 })}
-                    data-reveal
-                  >
-                    <img src={cover.src} alt={cover.alt[language]} loading="lazy" />
-                    <span className="photo-shade" />
-                    <span className="photo-caption">
-                      <span>{group.club}</span>
-                      <strong>{group.photos.length} {countLabel}</strong>
-                    </span>
-                    <span className="photo-expand" aria-hidden="true">↗</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
         <section className="honors section-space" id="logros">
           <div className="section-wrap">
             <div className="section-heading honors-heading">
@@ -322,7 +257,10 @@ function App() {
                 <article className="honor-card" key={honor.year}>
                   <span className="honor-year">{honor.year}</span>
                   <span className="honor-rule" />
-                  <p className="honor-club">{honor.club}</p>
+                  <div className="honor-club-lockup">
+                    <ClubCrest club={clubs.find((club) => club.name === honor.club)} />
+                    <p className="honor-club">{honor.club}</p>
+                  </div>
                   <h3>{t.promotion}<br />{t.firstDivision}</h3>
                   <span className="honor-index">0{index + 1}</span>
                 </article>
@@ -334,7 +272,6 @@ function App() {
         <section className="staff section-wrap section-space" id="cuerpo-tecnico">
           <div className="staff-visual">
             <img className="staff-portrait" src="/images/profile/profile.jpg" alt={t.profilePhotoAlt} />
-            <div className="staff-badge"><span>{t.staffBadgeTop}</span><strong>+</strong><span>{t.staffBadgeBottom}</span></div>
             <span className="staff-visual-label">ATLÉTICO DE RAFAELA · 2025—</span>
           </div>
           <div className="staff-copy">
@@ -373,53 +310,6 @@ function App() {
           <a href="#inicio" className="back-top"><span>{t.backTop}</span> ↑</a>
         </div>
       </footer>
-      <dialog
-        className="photo-dialog"
-        ref={photoDialogRef}
-        aria-label={language === "en" ? "Photo gallery" : "Galería de fotos"}
-        onCancel={(event) => {
-          event.preventDefault();
-          setActivePhoto(null);
-        }}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) setActivePhoto(null);
-        }}
-      >
-        {activePhoto && activePhotoGroup && activePhotoItem && (
-          <div className="lightbox-content">
-            <div className="lightbox-toolbar">
-              <span>{activePhoto.club} · {String(activePhoto.index + 1).padStart(2, "0")} / {String(activePhotoGroup.photos.length).padStart(2, "0")}</span>
-              <button type="button" className="lightbox-close" aria-label={t.photoClose} onClick={() => setActivePhoto(null)}>×</button>
-            </div>
-            <div className="lightbox-image-wrap">
-              <button
-                type="button"
-                className="lightbox-arrow lightbox-previous"
-                aria-label={t.photoPrevious}
-                onClick={() => setActivePhoto((current) => ({
-                  ...current,
-                  index: (current.index - 1 + activePhotoGroup.photos.length) % activePhotoGroup.photos.length
-                }))}
-              >
-                ←
-              </button>
-              <img src={activePhotoItem.src} alt={activePhotoItem.alt[language]} />
-              <button
-                type="button"
-                className="lightbox-arrow lightbox-next"
-                aria-label={t.photoNext}
-                onClick={() => setActivePhoto((current) => ({
-                  ...current,
-                  index: (current.index + 1) % activePhotoGroup.photos.length
-                }))}
-              >
-                →
-              </button>
-            </div>
-            <p className="lightbox-caption">{activePhotoItem.caption[language]}</p>
-          </div>
-        )}
-      </dialog>
     </>
   );
 }
