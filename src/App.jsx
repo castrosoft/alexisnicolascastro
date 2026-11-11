@@ -43,6 +43,7 @@ function ClubCrest({ club }) {
 function App() {
   const [language, setLanguage] = useState("es");
   const [theme, setTheme] = useState(getInitialTheme);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeClubName, setActiveClubName] = useState("Instituto");
   const [activeClubPhotoIndex, setActiveClubPhotoIndex] = useState(0);
   const t = translations[language];
@@ -69,6 +70,17 @@ function App() {
       // The selected theme remains available for the current page view.
     }
   }, [theme]);
+
+  useEffect(() => {
+    if (!isMenuOpen) return undefined;
+
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setIsMenuOpen(false);
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [isMenuOpen]);
 
   useEffect(() => {
     if (!("IntersectionObserver" in window)) return undefined;
@@ -98,47 +110,60 @@ function App() {
           <span className="wordmark-mark wordmark-avatar"><img src="/images/profile/profile.jpg" alt="" /></span>
           <span className="wordmark-name">ALEXIS CASTRO<span>FÚTBOL</span></span>
         </a>
-        <nav className="main-nav" aria-label={language === "en" ? "Main navigation" : "Navegación principal"}>
-          <a href="#trayectoria">{t.navCareer}</a>
-          <a href="#logros">{t.navHonors}</a>
-          <a href="#cuerpo-tecnico">{t.navStaff}</a>
-          <a href="#contacto">{t.navContact}</a>
-        </nav>
-        <div className="header-controls">
-          <div className="language-switch inline-flex items-center gap-1" role="group" aria-label={language === "en" ? "Select language" : "Seleccionar idioma"}>
-            {["es", "en"].map((item) => (
-              <button
-                className={`language-button transition-colors ${language === item ? "is-active" : ""}`}
-                key={item}
-                type="button"
-                aria-pressed={language === item}
-                onClick={() => setLanguage(item)}
-              >
-                {item.toUpperCase()}
-              </button>
-            ))}
+        <div className={`header-menu ${isMenuOpen ? "is-open" : ""}`} id="site-navigation">
+          <nav className="main-nav" aria-label={language === "en" ? "Main navigation" : "Navegación principal"}>
+            <a href="#trayectoria" onClick={() => setIsMenuOpen(false)}>{t.navCareer}</a>
+            <a href="#logros" onClick={() => setIsMenuOpen(false)}>{t.navHonors}</a>
+            <a href="#cuerpo-tecnico" onClick={() => setIsMenuOpen(false)}>{t.navStaff}</a>
+            <a href="#contacto" onClick={() => setIsMenuOpen(false)}>{t.navContact}</a>
+          </nav>
+          <div className="header-controls">
+            <div className="language-switch inline-flex items-center gap-1" role="group" aria-label={language === "en" ? "Select language" : "Seleccionar idioma"}>
+              {["es", "en"].map((item) => (
+                <button
+                  className={`language-button transition-colors ${language === item ? "is-active" : ""}`}
+                  key={item}
+                  type="button"
+                  aria-pressed={language === item}
+                  onClick={() => setLanguage(item)}
+                >
+                  {item.toUpperCase()}
+                </button>
+              ))}
+            </div>
+            <button
+              className="theme-toggle inline-flex items-center gap-2 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
+              type="button"
+              role="switch"
+              aria-checked={theme === "dark"}
+              aria-label={theme === "dark" ? t.themeToLight : t.themeToDark}
+              title={t.themeLabel}
+              onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")}
+            >
+              <span className="theme-icon"><ThemeIcon theme={theme} /></span>
+              <span className="theme-name">{theme === "dark" ? t.themeDark : t.themeLight}</span>
+              <span className="theme-track" aria-hidden="true"><span /></span>
+            </button>
           </div>
-          <button
-            className="theme-toggle inline-flex items-center gap-2 rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2"
-            type="button"
-            role="switch"
-            aria-checked={theme === "dark"}
-            aria-label={theme === "dark" ? t.themeToLight : t.themeToDark}
-            title={t.themeLabel}
-            onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")}
-          >
-            <span className="theme-icon"><ThemeIcon theme={theme} /></span>
-            <span className="theme-name">{theme === "dark" ? t.themeDark : t.themeLight}</span>
-            <span className="theme-track" aria-hidden="true"><span /></span>
-          </button>
         </div>
+        <button
+          className="mobile-menu-toggle"
+          type="button"
+          aria-expanded={isMenuOpen}
+          aria-controls="site-navigation"
+          aria-label={isMenuOpen ? t.menuClose : t.menuOpen}
+          onClick={() => setIsMenuOpen((open) => !open)}
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none">
+            {isMenuOpen ? <path d="m6 6 12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
       </header>
 
       <main>
         <section className="hero section-wrap" id="inicio">
           <div className="hero-copy">
             <p className="eyebrow"><span className="eyebrow-line" />{t.heroEyebrow}</p>
-            <h1>Alexis Nicolás<br /><span>Castro.</span></h1>
             <p className="hero-intro">{t.heroIntro}</p>
             <div className="hero-actions">
               <a className="button button-primary" href="#trayectoria"><span>{t.heroButton}</span><span aria-hidden="true">↘</span></a>
@@ -149,9 +174,22 @@ function App() {
               <span>{t.heroLocation}</span>
             </div>
           </div>
+          <h1 className="hero-display-name"><span>Alexis</span><span>Nicolás</span><span>Castro</span></h1>
           <div className="hero-visual" role="img" aria-label={t.heroImageAlt}>
             <img className="hero-photo" src="/images/portada/portada-removebg-preview.png" alt="" fetchPriority="high" />
           </div>
+          <aside className="hero-info" aria-label={t.heroHighlightsLabel}>
+            <div className="hero-info-card">
+              <span>{t.profileNow}</span>
+              <strong>{t.profileRole}</strong>
+              <small>Atlético de Rafaela · 2025—</small>
+            </div>
+            <div className="hero-info-card hero-info-career">
+              <span>{t.careerEyebrow}</span>
+              <strong>{clubs.length} {t.careerClubCount.toLowerCase()}</strong>
+              <small>{t.careerSeasonRange}</small>
+            </div>
+          </aside>
           <div className="hero-scroll" aria-hidden="true"><span />SCROLL</div>
         </section>
 
@@ -174,7 +212,7 @@ function App() {
             <div className="career-feature-column">
               <div className="career-feature" key={activeClub.name}>
                 {activeClubPhoto ? (
-                  <img className="career-feature-image" src={activeClubPhoto.src} alt={activeClubPhoto.alt[language]} />
+                  <img className="career-feature-image" src={activeClubPhoto.src} alt={activeClubPhoto.alt[language]} loading="lazy" decoding="async" />
                 ) : (
                   <div className="career-feature-empty" />
                 )}
@@ -271,7 +309,7 @@ function App() {
 
         <section className="staff section-wrap section-space" id="cuerpo-tecnico">
           <div className="staff-visual">
-            <img className="staff-portrait" src="/images/profile/profile.jpg" alt={t.profilePhotoAlt} />
+            <img className="staff-portrait" src="/images/profile/profile.jpg" alt={t.profilePhotoAlt} loading="lazy" decoding="async" />
             <span className="staff-visual-label">ATLÉTICO DE RAFAELA · 2025—</span>
           </div>
           <div className="staff-copy">
