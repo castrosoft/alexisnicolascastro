@@ -398,8 +398,8 @@ html[data-theme="light"] .honors { background: var(--ink-deep); }
   .site-header { height: 72px; padding-inline: 22px; }
   .hero { height: max(760px, calc(100svh - 72px)); min-height: 760px; }
   .hero-display-name { top: 38%; font-size: clamp(104px,18vw,170px); }
-  .hero-visual { top: 4%; bottom: auto; height: 69%; }
-  .hero-photo { height: 100%; }
+  .hero-visual { top: 4%; right: 0; bottom: auto; left: 0; height: 69%; overflow: visible; }
+  .hero-photo { height: 100%; opacity: 1; animation: none; transform: translateX(-50%); }
   .hero-copy { bottom: 6%; left: 24px; width: min(54%,330px); }
   .hero-info { top: auto; right: 24px; bottom: 8%; width: 34%; transform: none; }
   .hero-info-card { min-height: 102px; padding: 12px; gap: 6px; }
