@@ -446,6 +446,7 @@ html[data-theme="light"] .honors { background: var(--ink-deep); }
 .career-showcase { grid-template-columns: minmax(300px,.82fr) minmax(0,1.18fr); align-items: start; gap: 28px; }
 .career-side { gap: 12px; }
 .career-prompt { margin-bottom: 2px; color: #c5e1f5; }
+.club-select-label { display: none; }
 .club-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
 .club-row { min-height: 76px; grid-template-columns: 38px minmax(0,1fr) 14px; gap: 9px; padding: 9px; border-radius: 13px; }
 .club-crest { width: 34px; height: 34px; }
@@ -482,4 +483,29 @@ html[data-theme="light"] .honors { background: var(--ink-deep); }
   .career-stage-heading { min-height: 58px; }
   .career-feature-main .club-crest { width: 42px; height: 42px; flex-basis: 42px; }
   .career-feature { height: clamp(260px, 80vw, 390px); }
+}
+
+@media (max-width: 560px) {
+  .hero-display-name { top: 17%; z-index: 3; font-size: clamp(56px, 15vw, 76px); line-height: .76; }
+  .hero-photo { height: 56%; }
+
+  .career-prompt, .club-list { display: none; }
+  .career-side { gap: 10px; }
+  .club-select-label { display: grid; gap: 7px; color: var(--blue-bright); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+  .club-select { width: 100%; min-height: 46px; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; background: #141b22; color: #fff; font: 600 14px var(--font-body); }
+  .club-select:focus-visible { outline: 2px solid var(--blue-bright); outline-offset: 2px; }
+  .club-select option { background: #141b22; color: #fff; }
+  .career-metrics { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; padding-top: 0; }
+  .career-metrics > div { gap: 4px; padding: 9px 7px; }
+  .career-metrics strong { font-size: 17px; }
+  .career-metrics span { font-size: 8px; line-height: 1.25; }
+  .career-feature-column { display: flex; flex-direction: column; gap: 10px; }
+  .career-stage-heading { order: 0; }
+  .career-photo-list { order: 1; gap: 8px; padding-block: 0 2px; }
+  .career-feature { order: 2; height: clamp(250px, 72vw, 340px); }
+}
+
+@media (max-width: 360px) {
+  .hero-display-name { font-size: 54px; }
+  .career-metrics span { font-size: 7px; }
 }

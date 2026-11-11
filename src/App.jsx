@@ -211,6 +211,19 @@ function App() {
           <div className="career-showcase" data-reveal>
             <div className="career-side">
               <p className="career-prompt">{t.careerSelectPrompt}</p>
+              <label className="club-select-label">
+                <span>{t.careerSelectLabel}</span>
+                <select
+                  className="club-select"
+                  value={activeClub.name}
+                  onChange={(event) => {
+                    setActiveClubName(event.target.value);
+                    setActiveClubPhotoIndex(0);
+                  }}
+                >
+                  {clubs.map((club) => <option key={club.name} value={club.name}>{club.name}</option>)}
+                </select>
+              </label>
               <div className="club-list" role="group" aria-label={t.careerLabel}>
                 {clubs.map((club) => (
                   <button
