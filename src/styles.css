@@ -422,3 +422,64 @@ html[data-theme="light"] .honors { background: var(--ink-deep); }
   .hero::after { top: 36%; width: 82vw; }
   .footer { padding-top: 70px; }
 }
+
+/* Higher contrast text and a simpler club-first career browser. */
+:root {
+  --ink: #f7fbff;
+  --blue: #82caff;
+  --blue-bright: #a4ddff;
+  --muted: #b7daf2;
+  --control-selected: #285a78;
+  --control-selected-text: #fff;
+}
+
+.main-nav a { color: #d6ecfb; }
+.hero-display-name { color: #fff; }
+.hero-display-name span:nth-child(2) { -webkit-text-stroke-color: rgba(210,236,252,.6); }
+.hero-copy .hero-intro { color: #c5e1f5; }
+.hero-meta, .hero-scroll { color: #b7daf2; }
+.hero-meta > span:first-child { color: #fff; }
+.hero-info-card small { color: #c0dced; }
+.strip-inner p, .section-description-light, .honor-club { color: #c5e1f5; }
+.staff-coaches { color: #b7daf2; }
+
+.career-showcase { grid-template-columns: minmax(300px,.82fr) minmax(0,1.18fr); align-items: start; gap: 28px; }
+.career-side { gap: 12px; }
+.career-prompt { margin-bottom: 2px; color: #c5e1f5; }
+.club-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+.club-row { min-height: 76px; grid-template-columns: 38px minmax(0,1fr) 14px; gap: 9px; padding: 9px; border-radius: 13px; }
+.club-crest { width: 34px; height: 34px; }
+.club-years, .club-country { color: #b7daf2; }
+.club-name { color: #fff; font-size: 13px; }
+.club-highlight .club-name { color: #a4ddff; }
+.club-row:hover, .club-row.is-selected { background: rgba(130,202,255,.13); }
+.career-feature-column { align-content: start; gap: 14px; }
+.career-stage-heading { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.career-feature-main { margin: 0; }
+.career-feature-main .club-crest { border-color: rgba(164,221,255,.42); background: rgba(130,202,255,.08); }
+.career-feature-main h3 { color: #fff; font: 700 clamp(26px,3vw,38px)/1.05 var(--font-display); letter-spacing: -.02em; }
+.career-feature-kicker { display: block; margin-bottom: 4px; color: #a4ddff; font-size: 11px; letter-spacing: .1em; }
+.career-feature-index { position: static; flex: 0 0 auto; border-color: var(--line); background: transparent; color: #a4ddff; }
+.career-feature { height: clamp(360px, 44vw, 560px); min-height: 0; overflow: hidden; border-color: var(--line); border-radius: 18px; background: #111a22; }
+.career-feature-image { z-index: 0; object-fit: contain; object-position: center; animation: none; }
+.career-feature-empty { z-index: 0; }
+.career-photo-thumb.is-selected { border-color: var(--blue-bright); }
+
+@media (max-width: 800px) {
+  .career-showcase { grid-template-columns: 1fr; gap: 28px; }
+  .career-side { order: 0; }
+  .career-feature-column { order: 1; }
+  .club-list { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .career-feature { height: clamp(300px, 72vw, 500px); }
+}
+
+@media (max-width: 560px) {
+  .career-showcase { gap: 24px; }
+  .club-list { gap: 8px; }
+  .club-row { min-height: 68px; grid-template-columns: 28px minmax(0,1fr) 12px; gap: 7px; padding: 7px; }
+  .club-crest { width: 27px; height: 27px; }
+  .club-name { font-size: 11px; }
+  .career-stage-heading { min-height: 58px; }
+  .career-feature-main .club-crest { width: 42px; height: 42px; flex-basis: 42px; }
+  .career-feature { height: clamp(260px, 80vw, 390px); }
+}

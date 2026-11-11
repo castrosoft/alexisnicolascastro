@@ -209,41 +209,6 @@ function App() {
             <p className="section-description">{t.careerDescription}</p>
           </div>
           <div className="career-showcase" data-reveal>
-            <div className="career-feature-column">
-              <div className="career-feature" key={activeClub.name}>
-                {activeClubPhoto ? (
-                  <img className="career-feature-image" src={activeClubPhoto.src} alt={activeClubPhoto.alt[language]} loading="lazy" decoding="async" />
-                ) : (
-                  <div className="career-feature-empty" />
-                )}
-                <span className="career-feature-overlay" />
-                <div className="career-feature-content">
-                  <span className="career-feature-kicker">{t.careerSelected} · {Array.isArray(activeClub.years) ? activeClub.years.join(" / ") : activeClub.years}</span>
-                  <div className="career-feature-main">
-                    <ClubCrest club={activeClub} />
-                    <h3>{activeClub.name}</h3>
-                  </div>
-                  <p>{t[activeClub.country]}<span aria-hidden="true"> · </span>{t.careerLabel} {t.careerLabelSecond}</p>
-                </div>
-                <span className="career-feature-index">{String(clubs.indexOf(activeClub) + 1).padStart(2, "0")}<span> / {String(clubs.length).padStart(2, "0")}</span></span>
-              </div>
-              {activeClubPhotos.length > 1 && (
-                <div className="career-photo-list" role="group" aria-label={`${activeClub.name} — ${t.careerPhotos}`}>
-                  {activeClubPhotos.map((photo, index) => (
-                    <button
-                      className={`career-photo-thumb ${index === activeClubPhotoIndex ? "is-selected" : ""}`}
-                      key={photo.src}
-                      type="button"
-                      aria-label={`${t.careerViewPhoto} ${index + 1}: ${photo.alt[language]}`}
-                      aria-pressed={index === activeClubPhotoIndex}
-                      onClick={() => setActiveClubPhotoIndex(index)}
-                    >
-                      <img src={photo.src} alt="" loading="lazy" />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
             <div className="career-side">
               <p className="career-prompt">{t.careerSelectPrompt}</p>
               <div className="club-list" role="group" aria-label={t.careerLabel}>
@@ -277,6 +242,41 @@ function App() {
                 <div><strong>{honors.length}</strong><span>{t.careerPromotions}</span></div>
                 <div><strong>15</strong><span>{t.careerSeasons}</span></div>
               </div>
+            </div>
+            <div className="career-feature-column">
+              <div className="career-stage-heading">
+                <div className="career-feature-main">
+                  <ClubCrest club={activeClub} />
+                  <div>
+                    <span className="career-feature-kicker">{Array.isArray(activeClub.years) ? activeClub.years.join(" / ") : activeClub.years}</span>
+                    <h3>{activeClub.name}</h3>
+                  </div>
+                </div>
+                <span className="career-feature-index">{String(clubs.indexOf(activeClub) + 1).padStart(2, "0")} / {String(clubs.length).padStart(2, "0")}</span>
+              </div>
+              <div className="career-feature" key={activeClub.name}>
+                {activeClubPhoto ? (
+                  <img className="career-feature-image" src={activeClubPhoto.src} alt={activeClubPhoto.alt[language]} loading="lazy" decoding="async" />
+                ) : (
+                  <div className="career-feature-empty" />
+                )}
+              </div>
+              {activeClubPhotos.length > 1 && (
+                <div className="career-photo-list" role="group" aria-label={`${activeClub.name} — ${t.careerPhotos}`}>
+                  {activeClubPhotos.map((photo, index) => (
+                    <button
+                      className={`career-photo-thumb ${index === activeClubPhotoIndex ? "is-selected" : ""}`}
+                      key={photo.src}
+                      type="button"
+                      aria-label={`${t.careerViewPhoto} ${index + 1}: ${photo.alt[language]}`}
+                      aria-pressed={index === activeClubPhotoIndex}
+                      onClick={() => setActiveClubPhotoIndex(index)}
+                    >
+                      <img src={photo.src} alt="" loading="lazy" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
